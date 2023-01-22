@@ -12,7 +12,7 @@ import (
 
 func main() {
 	var logger log.Logger
-	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
+	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
 	var (
@@ -29,12 +29,11 @@ func main() {
 					w.Write([]byte("hello world"))
 				}),
 			}
+			logger.Log("msg", "http server starts runnning", "port", port)
 			return s.ListenAndServe()
 		},
 	}
-	cmd.Flags().IntVar(&port, "port", 80, "port number that http server runs on")
-
-	logger.Log("msg", "http server starts runnning", "port", port)
+	cmd.Flags().IntVarP(&port, "port", "p", 80, "port number that http server runs on")
 	if err := cmd.Execute(); err != nil {
 		logger.Log("error", err)
 	}
