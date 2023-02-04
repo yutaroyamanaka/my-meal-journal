@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 
@@ -26,8 +27,12 @@ func app(logger log.Logger) *cobra.Command {
 		Use:   "Book API",
 		Short: "Run a Book API server",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+			if err != nil {
+				level.Error(logger).Log("msg", fmt.Sprintf("failed to listen on address: %d", port), "error", err)
+				return err
+			}
 			srv := &http.Server{
-				Addr: fmt.Sprintf(":%d", port),
 				Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					w.Write([]byte("Hello world\n"))
 				}),
@@ -36,7 +41,7 @@ func app(logger log.Logger) *cobra.Command {
 			srvCh := make(chan error, 1)
 			go func() {
 				level.Info(logger).Log("msg", "http server starts runnning", "port", port)
-				if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+				if err := srv.Serve(l); err != nil && err != http.ErrServerClosed {
 					level.Error(logger).Log("msg", "failed to start the server", "error", err)
 					srvCh <- err
 				}
