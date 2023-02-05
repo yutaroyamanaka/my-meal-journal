@@ -14,16 +14,17 @@ type Service interface {
 	Add(string, int) (*entity.Journal, error)
 }
 
+type AddFunc func(string, int) (*entity.Journal, error)
+
+func (f AddFunc) Add(name string, category int) (*entity.Journal, error) {
+	return f(name, category)
+}
+
 func AddHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("content-type", "application/json")
 		if r.Method != http.MethodPost {
-			_, err := w.Write([]byte("Only post method is allowed"))
-			if err != nil {
-				level.Error(logger).Log("msg", "failed to write body to response writer", "err", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			w.WriteHeader(http.StatusBadRequest)
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 		ret, err := svc.Add("sunny side up", entity.Breakfast)
