@@ -34,7 +34,7 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 
 	srvCh := make(chan error, 1)
 	go func() {
-		level.Info(logger).Log("msg", "http server starts runnning", "port", port)
+		level.Info(logger).Log("msg", "http server starts runnning", "address", l.Addr().String())
 		if err := srv.Serve(l); err != nil && err != http.ErrServerClosed {
 			level.Error(logger).Log("msg", "failed to start the server", "error", err)
 			srvCh <- err
