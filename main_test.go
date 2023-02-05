@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestRun(t *testing.T) {
+func TestRun_health_check(t *testing.T) {
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -24,7 +24,7 @@ func TestRun(t *testing.T) {
 	go func() {
 		ch <- run(ctx, l, logger)
 	}()
-	url := fmt.Sprintf("http://%s", l.Addr().String())
+	url := fmt.Sprintf("http://%s/health", l.Addr().String())
 	resp, err := http.Get(url)
 	if err != nil {
 		t.Fatalf("Got an unexpected error: %#v", err)
@@ -37,7 +37,7 @@ func TestRun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Got an unexpected error: %#v", err)
 	}
-	want := "Hello world\n"
+	want := "OK\n"
 	if diff := cmp.Diff(string(got), want); diff != "" {
 		t.Errorf("Got an unexcpeted response: %s", diff)
 	}

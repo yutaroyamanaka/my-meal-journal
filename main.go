@@ -25,10 +25,13 @@ func newLogger() log.Logger {
 }
 
 func run(ctx context.Context, l net.Listener, logger log.Logger) error {
+	mux := http.NewServeMux()
+	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK\n"))
+	}))
+
 	srv := &http.Server{
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Hello world\n"))
-		}),
+		Handler: mux,
 	}
 
 	srvCh := make(chan error, 1)
