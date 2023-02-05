@@ -14,6 +14,7 @@ import (
 	"github.com/go-kit/log/level"
 
 	"github.com/spf13/cobra"
+	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/handler"
 )
 
 var port int
@@ -29,6 +30,7 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK\n"))
 	}))
+	mux.Handle("/add", handler.AddHandler(ctx, nil, logger))
 
 	srv := &http.Server{
 		Handler: mux,
@@ -63,7 +65,7 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 func app(ctx context.Context, logger log.Logger) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "app",
-		Short: "Run a Book API server",
+		Short: "Run an API server",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 			if err != nil {
