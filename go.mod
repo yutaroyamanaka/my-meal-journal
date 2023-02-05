@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/go-kit/log v0.2.1
+	github.com/google/go-cmp v0.5.9
 	github.com/spf13/cobra v1.6.1
 )
 
