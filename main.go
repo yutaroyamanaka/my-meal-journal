@@ -9,11 +9,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
 	"github.com/spf13/cobra"
+	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
 	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/handler"
 )
 
@@ -30,7 +32,9 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK\n"))
 	}))
-	mux.Handle("/add", handler.AddHandler(ctx, nil, logger))
+	mux.Handle("/add", handler.AddHandler(ctx, handler.AddFunc(func(s string, i int) (*entity.Journal, error) {
+		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
+	}), logger))
 
 	srv := &http.Server{
 		Handler: mux,
