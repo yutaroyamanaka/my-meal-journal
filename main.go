@@ -17,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
 	"github.com/yutaroyamanaka/my-meal-journal/internal/handler"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/service"
 )
 
 var port int
@@ -32,9 +33,14 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK\n"))
 	}))
-	mux.Handle("/add", handler.AddHandler(handler.AddFunc(func(ctx context.Context, s string, i int) (*entity.Journal, error) {
+
+	addSvc, err := service.NewAddService(service.AdderJournalFunc(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
 		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
-	}), logger))
+	}), logger)
+	if err != nil {
+		return err
+	}
+	mux.Handle("/add", handler.AddHandler(addSvc, logger))
 
 	srv := &http.Server{
 		Handler: mux,

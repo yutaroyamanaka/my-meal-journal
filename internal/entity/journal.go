@@ -14,6 +14,17 @@ const (
 // JournalID is a parimary key of the table.
 type JournalID uint64
 
+// CategoryName is a string type for meal category.
+type CategoryName string
+
+// Following variables represent string expressions of meal category.
+const (
+	CategoryBreakfast   CategoryName = "Breakfast"
+	CategoryLunchName   CategoryName = "Lunch"
+	CategoryDinnerName  CategoryName = "Dinner"
+	CateogoryOthersName CategoryName = "Others"
+)
+
 // Journal represents a record of meal.
 type Journal struct {
 	ID       JournalID `json:"id"`
