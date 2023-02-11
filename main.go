@@ -9,11 +9,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
 	"github.com/spf13/cobra"
+	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
+	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/handler"
 )
 
 var port int
@@ -25,10 +28,16 @@ func newLogger() log.Logger {
 }
 
 func run(ctx context.Context, l net.Listener, logger log.Logger) error {
+	mux := http.NewServeMux()
+	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("OK\n"))
+	}))
+	mux.Handle("/add", handler.AddHandler(ctx, handler.AddFunc(func(s string, i int) (*entity.Journal, error) {
+		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
+	}), logger))
+
 	srv := &http.Server{
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Hello world\n"))
-		}),
+		Handler: mux,
 	}
 
 	srvCh := make(chan error, 1)
@@ -60,7 +69,7 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 func app(ctx context.Context, logger log.Logger) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "app",
-		Short: "Run a Book API server",
+		Short: "Run an API server",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 			if err != nil {
