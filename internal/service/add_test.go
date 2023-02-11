@@ -94,14 +94,14 @@ func TestAddService_Add(t *testing.T) {
 			repo:    newAdderJournalFunc(false),
 			args:    args{"sunny side up", -1},
 			want:    nil,
-			wantErr: errors.New(`category must be between 0("Breakfast") and 3("Others")`),
+			wantErr: errors.New(`category must be between 0(Breakfast) and 3(Others)`),
 		},
 		{
 			name:    "invalid category (greater than 3)",
 			repo:    newAdderJournalFunc(false),
 			args:    args{"sunny side up", 4},
 			want:    nil,
-			wantErr: errors.New(`category must be between 0("Breakfast") and 3("Others")`),
+			wantErr: errors.New(`category must be between 0(Breakfast) and 3(Others)`),
 		},
 	}
 	for _, tt := range tests {

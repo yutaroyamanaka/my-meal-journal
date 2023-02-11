@@ -49,7 +49,7 @@ func (s *AddService) Add(ctx context.Context, name string, category int) (*entit
 		return nil, errors.New("name must not be empty")
 	}
 	if category < 0 || category > entity.Others {
-		return nil, fmt.Errorf("category must be between %d(%q) and %d(%q)",
+		return nil, fmt.Errorf("category must be between %d(%s) and %d(%s)",
 			entity.Breakfast, entity.CategoryBreakfast, entity.Others, entity.CateogoryOthersName)
 	}
 	journal, err := s.repo.AddJournal(ctx, name, category)
