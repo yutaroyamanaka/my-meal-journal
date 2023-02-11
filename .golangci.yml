@@ -10,7 +10,18 @@ linters-settings:
     check-blank: false
 
 linters:
-  enable-all: true
+  enable-all: false
+  enable:
+    - goimports
+    - unused
+    - errcheck
+    - gocognit
+    - gocyclo
+    - gofmt
+    - govet
+    - misspell
+    - staticcheck
+    - whitespace
 
 issues:
   exclude-use-default: false
