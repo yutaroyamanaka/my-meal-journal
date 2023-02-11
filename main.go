@@ -32,7 +32,7 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK\n"))
 	}))
-	mux.Handle("/add", handler.AddHandler(ctx, handler.AddFunc(func(s string, i int) (*entity.Journal, error) {
+	mux.Handle("/add", handler.AddHandler(handler.AddFunc(func(ctx context.Context, s string, i int) (*entity.Journal, error) {
 		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
 	}), logger))
 
