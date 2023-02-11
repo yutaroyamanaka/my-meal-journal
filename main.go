@@ -15,8 +15,8 @@ import (
 	"github.com/go-kit/log/level"
 
 	"github.com/spf13/cobra"
-	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
-	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/handler"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/handler"
 )
 
 var port int
