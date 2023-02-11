@@ -37,6 +37,7 @@ func AddHandler(ctx context.Context, svc Service, logger log.Logger) http.Handle
 		if err != nil {
 			level.Error(logger).Log("msg", "failed to create a new journal", "err", err)
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("failed to register your meal's information\n"))
 			return
 		}
 		body, err := json.Marshal(ret)

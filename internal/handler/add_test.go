@@ -44,7 +44,7 @@ func TestAddHandler(t *testing.T) {
 			method: http.MethodPost,
 			status: http.StatusInternalServerError,
 			f:      func(string, int) (*entity.Journal, error) { return nil, errors.New("unexpected error is occurred") },
-			want:   "",
+			want:   "failed to register your meal's information\n",
 		},
 	}
 
