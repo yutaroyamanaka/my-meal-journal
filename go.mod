@@ -1,4 +1,4 @@
-module github.com/yutaroyamanaka/my-httpserver-monitoring
+module github.com/yutaroyamanaka/my-meal-journal
 
 go 1.19
 

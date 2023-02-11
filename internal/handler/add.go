@@ -8,7 +8,7 @@ import (
 
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
 )
 
 // Service receives meal's information, and returns the record and error.

@@ -12,7 +12,7 @@ import (
 
 	log "github.com/go-kit/log"
 	"github.com/google/go-cmp/cmp"
-	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
 )
 
 func TestAddHandler(t *testing.T) {
