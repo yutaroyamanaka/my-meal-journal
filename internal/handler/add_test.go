@@ -27,7 +27,7 @@ func TestAddHandler(t *testing.T) {
 			name:   "normal",
 			method: http.MethodPost,
 			status: http.StatusOK,
-			f: func(string, int) (*entity.Journal, error) {
+			f: func(context.Context, string, int) (*entity.Journal, error) {
 				return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
 			},
 			want: `{"id":0,"name":"sunny side up","category":0,"created":"2023-02-05T16:27:56Z"}`,
@@ -36,21 +36,23 @@ func TestAddHandler(t *testing.T) {
 			name:   "method not allowed",
 			method: http.MethodGet,
 			status: http.StatusMethodNotAllowed,
-			f:      func(string, int) (*entity.Journal, error) { return nil, nil },
+			f:      func(context.Context, string, int) (*entity.Journal, error) { return nil, nil },
 			want:   "",
 		},
 		{
 			name:   "service returns an error",
 			method: http.MethodPost,
 			status: http.StatusInternalServerError,
-			f:      func(string, int) (*entity.Journal, error) { return nil, errors.New("unexpected error is occurred") },
-			want:   "failed to register your meal's information\n",
+			f: func(context.Context, string, int) (*entity.Journal, error) {
+				return nil, errors.New("unexpected error is occurred")
+			},
+			want: "failed to register your meal's information\n",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := AddHandler(context.Background(), tt.f, log.NewLogfmtLogger(os.Stderr))
+			h := AddHandler(tt.f, log.NewLogfmtLogger(os.Stderr))
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(tt.method, "http://localhost/add", nil)
 			h.ServeHTTP(w, r)
