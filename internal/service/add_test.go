@@ -12,10 +12,15 @@ import (
 	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
 )
 
-type stubJournalAdder func(context.Context, string, int) (*entity.Journal, error)
-
-func (f stubJournalAdder) AddJournal(ctx context.Context, name string, category int) (*entity.Journal, error) {
-	return f(ctx, name, category)
+func newAdderJournalFunc(hasError bool) AdderJournalFunc {
+	if hasError {
+		return AdderJournalFunc(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
+			return nil, errors.New("unexpected error is occurred")
+		})
+	}
+	return AdderJournalFunc(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
+		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
+	})
 }
 
 func TestNewAddService_error(t *testing.T) {
@@ -31,14 +36,12 @@ func TestNewAddService_error(t *testing.T) {
 			logger: log.NewNopLogger(),
 			want:   errors.New("repo must not be nil"),
 		},
-		/*
-			{
-				name:   "logger must not be nil",
-				repo:   nil,
-				logger: nil,
-				want:   errors.New("logger must not be nil"),
-			},
-		*/
+		{
+			name:   "logger must not be nil",
+			repo:   newAdderJournalFunc(false),
+			logger: nil,
+			want:   errors.New("logger must not be nil"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -66,46 +69,36 @@ func TestAddService_Add(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "normal",
-			repo: stubJournalAdder(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-				return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
-			}),
+			name:    "normal",
+			repo:    newAdderJournalFunc(false),
 			args:    args{"sunny side up", 0},
 			want:    &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)},
 			wantErr: nil,
 		},
 		{
-			name: "JournalAdder returns an error",
-			repo: stubJournalAdder(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-				return nil, errors.New("unexpected error is occurred")
-			}),
+			name:    "JournalAdder returns an error",
+			repo:    newAdderJournalFunc(true),
 			args:    args{"sunny side up", 0},
 			want:    nil,
 			wantErr: errors.New("failed to register your meal's information"),
 		},
 		{
-			name: "empty name",
-			repo: stubJournalAdder(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-				return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
-			}),
+			name:    "empty name",
+			repo:    newAdderJournalFunc(false),
 			args:    args{"", 0},
 			want:    nil,
 			wantErr: errors.New("name must not be empty"),
 		},
 		{
-			name: "invalid category (lower than 0)",
-			repo: stubJournalAdder(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-				return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
-			}),
+			name:    "invalid category (lower than 0)",
+			repo:    newAdderJournalFunc(false),
 			args:    args{"sunny side up", -1},
 			want:    nil,
 			wantErr: errors.New(`category must be between 0("Breakfast") and 3("Others")`),
 		},
 		{
-			name: "invalid category (greater than 3)",
-			repo: stubJournalAdder(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-				return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
-			}),
+			name:    "invalid category (greater than 3)",
+			repo:    newAdderJournalFunc(false),
 			args:    args{"sunny side up", 4},
 			want:    nil,
 			wantErr: errors.New(`category must be between 0("Breakfast") and 3("Others")`),

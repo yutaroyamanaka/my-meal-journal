@@ -17,6 +17,14 @@ type JournalAdder interface {
 	AddJournal(context.Context, string, int) (*entity.Journal, error)
 }
 
+// AdderJournalFunc is a stub function for mocking JournalAdder interface.
+type AdderJournalFunc func(context.Context, string, int) (*entity.Journal, error)
+
+// AddJournal deals with business logic about new journal registration.
+func (f AdderJournalFunc) AddJournal(ctx context.Context, name string, category int) (*entity.Journal, error) {
+	return f(ctx, name, category)
+}
+
 // AddService has JournalAdder interface and log.Logger as fields.
 type AddService struct {
 	repo   JournalAdder

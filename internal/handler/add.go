@@ -9,12 +9,15 @@ import (
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/service"
 )
 
 // Service receives meal's information, and returns the record and error.
 type Service interface {
 	Add(context.Context, string, int) (*entity.Journal, error)
 }
+
+var _ Service = (*service.AddService)(nil)
 
 // AddFunc is a stub function for mocking Service interface.
 type AddFunc func(context.Context, string, int) (*entity.Journal, error)
