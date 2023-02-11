@@ -1,25 +1,22 @@
 linters-settings:
   govet:
     check-shadowing: true
-  golint:
-    min-confidence: 0
   misspell:
     locale: US
-  errcheck:
-    check-type-assertions: false
-    check-blank: false
+  revive:
+    package-comment: false
 
 linters:
-  enable-all: false
+  disable-all: true
   enable:
     - goimports
     - unused
-    - errcheck
     - gocognit
     - gocyclo
     - gofmt
-    - govet
     - misspell
+    - nilerr
+    - revive
     - staticcheck
     - whitespace
 

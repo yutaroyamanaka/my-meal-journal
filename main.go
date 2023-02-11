@@ -1,3 +1,4 @@
+// package main sets up the http server.
 package main
 
 import (
@@ -15,11 +16,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	port int
-)
+var port int
 
-func NewLogger() log.Logger {
+func newLogger() log.Logger {
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stdout))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 	return logger
@@ -76,7 +75,7 @@ func app(ctx context.Context, logger log.Logger) *cobra.Command {
 }
 
 func main() {
-	logger := NewLogger()
+	logger := newLogger()
 	cmd := app(context.Background(), logger)
 	if err := cmd.Execute(); err != nil {
 		level.Error(logger).Log("msg", "failed to execute a command", "error", err)
