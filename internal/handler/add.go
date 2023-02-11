@@ -1,3 +1,4 @@
+// Package handler has functions which handle application logics.
 package handler
 
 import (
@@ -10,16 +11,21 @@ import (
 	"github.com/yutaroyamanaka/my-httpserver-monitoring/internal/entity"
 )
 
+// Service receives meal's information, and returns the record and error.
 type Service interface {
 	Add(string, int) (*entity.Journal, error)
 }
 
+// AddFunc is a stub function for mocking Service interface.
 type AddFunc func(string, int) (*entity.Journal, error)
 
+// Add receives meal's information, and returns the record and error.
 func (f AddFunc) Add(name string, category int) (*entity.Journal, error) {
 	return f(name, category)
 }
 
+// AddHandler returns http.Handler which paases meal's information to business logic
+// and returns the response with the record information.
 func AddHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("content-type", "application/json")
