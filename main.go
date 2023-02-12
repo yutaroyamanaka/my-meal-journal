@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -34,13 +33,17 @@ func run(ctx context.Context, l net.Listener, logger log.Logger) error {
 		w.Write([]byte("OK\n"))
 	}))
 
-	addSvc, err := service.NewAddService(service.AdderJournalFunc(func(ctx context.Context, name string, category int) (*entity.Journal, error) {
-		return &entity.Journal{ID: 0, Name: "sunny side up", Cateogry: 0, Created: time.Date(2023, 2, 5, 16, 27, 56, 0, time.UTC)}, nil
+	addsvc, err := service.NewAddService(service.AdderJournalFunc(func(ctx context.Context, j *entity.Journal) error {
+		return nil
 	}), logger)
 	if err != nil {
 		return err
 	}
-	mux.Handle("/add", handler.AddHandler(addSvc, logger))
+	addh, err := handler.NewAddHandler(addsvc, logger)
+	if err != nil {
+		return err
+	}
+	mux.Handle("/add", addh)
 
 	srv := &http.Server{
 		Handler: mux,
