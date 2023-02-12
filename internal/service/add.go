@@ -4,7 +4,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
@@ -14,15 +13,15 @@ import (
 
 // JournalAdder deals with business logic about new journal registration.
 type JournalAdder interface {
-	AddJournal(context.Context, string, int) (*entity.Journal, error)
+	AddJournal(context.Context, *entity.Journal) error
 }
 
 // AdderJournalFunc is a stub function for mocking JournalAdder interface.
-type AdderJournalFunc func(context.Context, string, int) (*entity.Journal, error)
+type AdderJournalFunc func(context.Context, *entity.Journal) error
 
 // AddJournal deals with business logic about new journal registration.
-func (f AdderJournalFunc) AddJournal(ctx context.Context, name string, category int) (*entity.Journal, error) {
-	return f(ctx, name, category)
+func (f AdderJournalFunc) AddJournal(ctx context.Context, j *entity.Journal) error {
+	return f(ctx, j)
 }
 
 // AddService has JournalAdder interface and log.Logger as fields.
@@ -44,18 +43,15 @@ func NewAddService(repo JournalAdder, logger log.Logger) (*AddService, error) {
 }
 
 // Add validates name and category, and calls AddJournal method of JournalAdder interface.
-func (s *AddService) Add(ctx context.Context, name string, category int) (*entity.Journal, error) {
-	if name == "" {
-		return nil, errors.New("name must not be empty")
+func (s *AddService) Add(ctx context.Context, name string, category int) error {
+	j := &entity.Journal{
+		Name:     name,
+		Cateogry: category,
 	}
-	if category < 0 || category > entity.Others {
-		return nil, fmt.Errorf("category must be between %d(%q) and %d(%q)",
-			entity.Breakfast, entity.CategoryBreakfast, entity.Others, entity.CateogoryOthersName)
-	}
-	journal, err := s.repo.AddJournal(ctx, name, category)
+	err := s.repo.AddJournal(ctx, j)
 	if err != nil {
 		level.Error(s.logger).Log("msg", "failed to add a journal in JournalAdder", "err", err)
-		return nil, errors.New("failed to register your meal's information")
+		return errors.New("failed to register your meal's information")
 	}
-	return journal, err
+	return nil
 }
