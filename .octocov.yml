@@ -16,7 +16,6 @@ testExecutionTime:
   if: true
   badge:
     path: docs/time.svg
-push:
 diff:
   datastores:
     - artifact://${GITHUB_REPOSITORY}
