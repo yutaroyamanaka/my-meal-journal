@@ -6,3 +6,17 @@ services:
       - 8080:8080
     command:
       - --port=8080
+  db:
+    image: mysql:8.0.32
+    command: --default-authentication-plugin=mysql_native_password 
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_DATABASE: test
+    volumes:
+      - db-volume:/var/lib/mysql
+    ports:
+      - "3306:3306"
+volumes:
+  db-volume:
