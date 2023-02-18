@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,13 +11,15 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/caarlos0/env"
 	log "github.com/go-kit/log"
 	"github.com/go-kit/log/level"
 
 	"github.com/spf13/cobra"
-	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/clock"
 	"github.com/yutaroyamanaka/my-meal-journal/internal/handler"
 	"github.com/yutaroyamanaka/my-meal-journal/internal/service"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/store"
 )
 
 var port int
@@ -27,15 +30,17 @@ func newLogger() log.Logger {
 	return logger
 }
 
-func run(ctx context.Context, l net.Listener, logger log.Logger) error {
+func run(ctx context.Context, db *sql.DB, l net.Listener, logger log.Logger) error {
 	mux := http.NewServeMux()
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("OK\n"))
 	}))
 
-	addsvc, err := service.NewAddService(service.AdderJournalFunc(func(ctx context.Context, j *entity.Journal) error {
-		return nil
-	}), logger)
+	r, err := store.NewRepository(&clock.RealTimeClocker{}, db)
+	if err != nil {
+		return err
+	}
+	addsvc, err := service.NewAddService(r, logger)
 	if err != nil {
 		return err
 	}
@@ -80,12 +85,22 @@ func app(ctx context.Context, logger log.Logger) *cobra.Command {
 		Use:   "app",
 		Short: "Run an API server",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			c := store.Config{}
+			if err := env.Parse(&c); err != nil {
+				return err
+			}
+			db, cleanup, err := store.Open(&c)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
 			l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 			if err != nil {
 				level.Error(logger).Log("msg", fmt.Sprintf("failed to listen on address: %d", port), "error", err)
 				return err
 			}
-			return run(ctx, l, logger)
+			return run(ctx, db, l, logger)
 		},
 	}
 	cmd.Flags().IntVarP(&port, "port", "p", 80, "port number that http server runs on")

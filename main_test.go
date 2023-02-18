@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"net"
@@ -21,8 +22,9 @@ func TestRun_health_check(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	ch := make(chan error, 1)
+	dummydb := &sql.DB{}
 	go func() {
-		ch <- run(ctx, l, logger)
+		ch <- run(ctx, dummydb, l, logger)
 	}()
 	url := fmt.Sprintf("http://%s/health", l.Addr().String())
 	resp, err := http.Get(url)
