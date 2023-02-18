@@ -31,4 +31,5 @@ type Journal struct {
 	Name     string    `json:"name"`
 	Cateogry uint8     `json:"category"`
 	Created  time.Time `json:"created"`
+	Updated  time.Time `json:"updated"`
 }
