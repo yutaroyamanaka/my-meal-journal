@@ -27,16 +27,16 @@ var (
 
 // Service receives meal's information and returns the error of business logic.
 type Service interface {
-	Add(context.Context, string, int) error
+	Add(context.Context, string, uint8) error
 }
 
 var _ Service = (*service.AddService)(nil)
 
 // AddFunc is a stub function for mocking Service interface.
-type AddFunc func(context.Context, string, int) error
+type AddFunc func(context.Context, string, uint8) error
 
 // Add receives meal's information and returns the error of business logic.
-func (f AddFunc) Add(ctx context.Context, name string, category int) error {
+func (f AddFunc) Add(ctx context.Context, name string, category uint8) error {
 	return f(ctx, name, category)
 }
 
@@ -85,12 +85,12 @@ func NewAddHandler(svc Service, logger log.Logger) (http.Handler, error) {
 			writeErrorResponse(w, ErrName, http.StatusBadRequest)
 			return
 		}
-		if i.Category == nil || *i.Category < entity.Breakfast || *i.Category > entity.Others {
+		if i.Category == nil || *i.Category < int(entity.Breakfast) || *i.Category > int(entity.Others) {
 			writeErrorResponse(w, ErrCategory, http.StatusBadRequest)
 			return
 		}
 
-		err = svc.Add(r.Context(), *i.Name, *i.Category)
+		err = svc.Add(r.Context(), *i.Name, uint8(*i.Category))
 		if err != nil {
 			level.Error(logger).Log("msg", "failed to create a new journal", "err", err)
 			writeErrorResponse(w, err.Error(), http.StatusInternalServerError)
