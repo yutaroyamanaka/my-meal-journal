@@ -9,12 +9,15 @@ import (
 	"github.com/go-kit/log/level"
 
 	"github.com/yutaroyamanaka/my-meal-journal/internal/entity"
+	"github.com/yutaroyamanaka/my-meal-journal/internal/store"
 )
 
 // JournalAdder deals with business logic about new journal registration.
 type JournalAdder interface {
 	AddJournal(context.Context, *entity.Journal) error
 }
+
+var _ JournalAdder = (*store.Repository)(nil)
 
 // AdderJournalFunc is a stub function for mocking JournalAdder interface.
 type AdderJournalFunc func(context.Context, *entity.Journal) error
