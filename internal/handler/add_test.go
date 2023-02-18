@@ -53,98 +53,119 @@ func TestNewAddNewHandler_error(t *testing.T) {
 
 func TestNewAddHandler_ServeHTTP(t *testing.T) {
 	tests := []struct {
-		name   string
-		method string
-		body   string
-		status int
-		f      AddFunc
-		want   string
+		name    string
+		method  string
+		content string
+		body    string
+		status  int
+		f       AddFunc
+		want    string
 	}{
 		{
-			name:   "normal",
-			method: http.MethodPost,
-			body:   `{"name":"sunny side up","category":0}`,
-			status: http.StatusCreated,
+			name:    "normal",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"sunny side up","category":0}`,
+			status:  http.StatusCreated,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: "",
 		},
 		{
-			name:   "method not allowed",
-			method: http.MethodGet,
-			body:   "",
-			status: http.StatusMethodNotAllowed,
+			name:    "method not allowed",
+			method:  http.MethodGet,
+			content: "application/json",
+			body:    "",
+			status:  http.StatusMethodNotAllowed,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrDiallowedMethod),
 		},
 		{
-			name:   "not json",
-			method: http.MethodPost,
-			body:   "not json",
-			status: http.StatusBadRequest,
+			name:    "content type not allowed",
+			method:  http.MethodPost,
+			content: "text/html",
+			body:    "<html>test</html>",
+			status:  http.StatusUnsupportedMediaType,
+			f: func(context.Context, string, uint8) error {
+				return nil
+			},
+			want: fmt.Sprintf(`{"error":%q}`, ErrDisallowedContentType),
+		},
+		{
+			name:    "not json",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    "not json",
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrInvalidRequestBody),
 		},
 		{
-			name:   "name is missing",
-			method: http.MethodPost,
-			body:   `{"category":0}`,
-			status: http.StatusBadRequest,
+			name:    "name is missing",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"category":0}`,
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrName),
 		},
 		{
-			name:   "name is empty",
-			method: http.MethodPost,
-			body:   `{"name":"","category":0}`,
-			status: http.StatusBadRequest,
+			name:    "name is empty",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"","category":0}`,
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrName),
 		},
 		{
-			name:   "category is missing",
-			method: http.MethodPost,
-			body:   `{"name":"sunny side up"}`,
-			status: http.StatusBadRequest,
+			name:    "category is missing",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"sunny side up"}`,
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
 		},
 		{
-			name:   "category must not be negative",
-			method: http.MethodPost,
-			body:   `{"name":"sunny side up","category":-1}`,
-			status: http.StatusBadRequest,
+			name:    "category must not be negative",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"sunny side up","category":-1}`,
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
 		},
 		{
-			name:   "category must not greater than 3",
-			method: http.MethodPost,
-			body:   `{"name":"sunny side up","category":4}`,
-			status: http.StatusBadRequest,
+			name:    "category must not greater than 3",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"sunny side up","category":4}`,
+			status:  http.StatusBadRequest,
 			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
 		},
 		{
-			name:   "service returns an error",
-			method: http.MethodPost,
-			body:   `{"name":"sunny side up","category":0}`,
-			status: http.StatusInternalServerError,
+			name:    "service returns an error",
+			method:  http.MethodPost,
+			content: "application/json",
+			body:    `{"name":"sunny side up","category":0}`,
+			status:  http.StatusInternalServerError,
 			f: func(context.Context, string, uint8) error {
 				return errors.New("service returns an error")
 			},
@@ -160,6 +181,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			}
 			w := httptest.NewRecorder()
 			r := httptest.NewRequest(tt.method, "http://localhost/add", bytes.NewBuffer([]byte(tt.body)))
+			r.Header.Set("Content-Type", tt.content)
 			h.ServeHTTP(w, r)
 
 			resp := w.Result()
@@ -174,7 +196,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			if diff := cmp.Diff(resp.StatusCode, tt.status); diff != "" {
 				t.Errorf("Got an unexcpeted status code: %s", diff)
 			}
-			if diff := cmp.Diff(resp.Header.Get("content-type"), "application/json"); diff != "" {
+			if diff := cmp.Diff(resp.Header.Get("Content-Type"), "application/json"); diff != "" {
 				t.Errorf("Got an unexcpeted content-type: %s", diff)
 			}
 			if diff := cmp.Diff(string(got), tt.want); diff != "" {

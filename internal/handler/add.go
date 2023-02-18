@@ -17,10 +17,11 @@ import (
 
 // Error messages
 var (
-	ErrDiallowedMethod    = "only post method is allowed"
-	ErrInvalidRequestBody = "request body is invalid"
-	ErrName               = "name must be a non-empty string"
-	ErrCategory           = fmt.Sprintf("category must be integer between %d (%s) and %d (%s)",
+	ErrDiallowedMethod       = "only post method is allowed"
+	ErrDisallowedContentType = "content-type must be application/json"
+	ErrInvalidRequestBody    = "request body is invalid"
+	ErrName                  = "name must be a non-empty string"
+	ErrCategory              = fmt.Sprintf("category must be integer between %d (%s) and %d (%s)",
 		entity.Breakfast, entity.CategoryBreakfast, entity.Others, entity.CateogoryOthersName)
 	ErrUnknown = "An unknown errors is occurred"
 )
@@ -56,9 +57,13 @@ func NewAddHandler(svc Service, logger log.Logger) (http.Handler, error) {
 		return nil, errors.New("logger must not be nil")
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("content-type", "application/json")
+		w.Header().Add("Content-Type", "application/json")
 		if r.Method != http.MethodPost {
 			writeErrorResponse(w, ErrDiallowedMethod, http.StatusMethodNotAllowed)
+			return
+		}
+		if r.Header.Get("Content-Type") != "application/json" {
+			writeErrorResponse(w, ErrDisallowedContentType, http.StatusUnsupportedMediaType)
 			return
 		}
 
