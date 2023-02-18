@@ -5,7 +5,7 @@ import "time"
 
 // Following variables represent types of meal.
 const (
-	Breakfast int = iota
+	Breakfast uint8 = iota
 	Lunch
 	Dinner
 	Others
@@ -29,6 +29,6 @@ const (
 type Journal struct {
 	ID       JournalID `json:"id"`
 	Name     string    `json:"name"`
-	Cateogry int       `json:"category"`
+	Cateogry uint8     `json:"category"`
 	Created  time.Time `json:"created"`
 }

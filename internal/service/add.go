@@ -43,7 +43,7 @@ func NewAddService(repo JournalAdder, logger log.Logger) (*AddService, error) {
 }
 
 // Add validates name and category, and calls AddJournal method of JournalAdder interface.
-func (s *AddService) Add(ctx context.Context, name string, category int) error {
+func (s *AddService) Add(ctx context.Context, name string, category uint8) error {
 	j := &entity.Journal{
 		Name:     name,
 		Cateogry: category,

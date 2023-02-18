@@ -31,7 +31,7 @@ func TestNewAddNewHandler_error(t *testing.T) {
 		},
 		{
 			name: "logger must not be nil",
-			svc: AddFunc(func(ctx context.Context, name string, category int) error {
+			svc: AddFunc(func(ctx context.Context, name string, category uint8) error {
 				return nil
 			}),
 			logger: nil,
@@ -65,7 +65,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"sunny side up","category":0}`,
 			status: http.StatusCreated,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: "",
@@ -75,7 +75,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodGet,
 			body:   "",
 			status: http.StatusMethodNotAllowed,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrDiallowedMethod),
@@ -85,7 +85,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   "not json",
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrInvalidRequestBody),
@@ -95,7 +95,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"category":0}`,
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrName),
@@ -105,7 +105,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"","category":0}`,
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrName),
@@ -115,7 +115,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"sunny side up"}`,
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
@@ -125,7 +125,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"sunny side up","category":-1}`,
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
@@ -135,7 +135,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"sunny side up","category":4}`,
 			status: http.StatusBadRequest,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return nil
 			},
 			want: fmt.Sprintf(`{"error":%q}`, ErrCategory),
@@ -145,7 +145,7 @@ func TestNewAddHandler_ServeHTTP(t *testing.T) {
 			method: http.MethodPost,
 			body:   `{"name":"sunny side up","category":0}`,
 			status: http.StatusInternalServerError,
-			f: func(context.Context, string, int) error {
+			f: func(context.Context, string, uint8) error {
 				return errors.New("service returns an error")
 			},
 			want: `{"error":"service returns an error"}`,

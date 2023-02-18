@@ -49,7 +49,7 @@ func TestNewAddService_error(t *testing.T) {
 func TestAddService_Add(t *testing.T) {
 	type args struct {
 		name     string
-		category int
+		category uint8
 	}
 	tests := []struct {
 		name string
