@@ -2,10 +2,19 @@ version: "3.9"
 services:
   app:
     build: ../
+    depends_on:
+      - db
     ports:
       - 8080:8080
+    restart: always
     command:
       - --port=8080
+    environment:
+      DB_USER: test
+      DB_PASSWORD: test
+      DB_NAME: test
+      DB_HOST: db
+      DB_PORT: 3306
   db:
     image: mysql:8.0.32
     command: --default-authentication-plugin=mysql_native_password 

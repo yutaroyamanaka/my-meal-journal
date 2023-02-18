@@ -92,7 +92,6 @@ func NewAddHandler(svc Service, logger log.Logger) (http.Handler, error) {
 
 		err = svc.Add(r.Context(), *i.Name, uint8(*i.Category))
 		if err != nil {
-			level.Error(logger).Log("msg", "failed to create a new journal", "err", err)
 			writeErrorResponse(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

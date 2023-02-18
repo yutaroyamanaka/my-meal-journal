@@ -1,8 +1,11 @@
-.PHONY: help build up down logs ps test
+.PHONY: help build build-local up down logs ps migrate test
 
 TAG := latest
 build:
-	docker build -t yutaroyamanaka/my-mea-journal:$(TAG) .
+	docker build -t yutaroyamanaka/my-meal-journal:$(TAG) .
+
+build-local:
+	docker compose -f ./deploy/compose.yaml build --no-cache
 
 up:
 	docker compose -f ./deploy/compose.yaml up -d
@@ -17,7 +20,11 @@ ps:
 	docker compose -f ./deploy/compose.yaml ps
 
 migrate:
-	mysql -u test -p test -h 127.0.0.1 < deploy/mysql/schema.sql
+	mysql -u test -ptest -h 127.0.0.1 test < deploy/mysql/schema.sql
+
+test: up
+	echo "waiting for database setup"; sleep 20;
+	go test -v -race -shuffle=on ./...
 
 help: ## Show options
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
