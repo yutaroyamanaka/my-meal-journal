@@ -7,12 +7,11 @@ terraform {
   }
   required_version = ">= 1.3.9"
 
-  cloud {
-    organization = "my-meal-journal"
-
-    workspaces {
-      name = "ci"
-    }
+  backend "s3" {
+    bucket         = "bucket-yutaroyamanaka"
+    key            = "terraform"
+    region         = "ap-northeast-1"
+    dynamodb_table = "terraform-state-lock"
   }
 }
 
