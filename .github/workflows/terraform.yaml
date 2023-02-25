@@ -14,10 +14,18 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
-      - name: setup terraform
-        uses: hashicorp/setup-terraform@v1
+      - name: load private key
+        run: |
+          mkdir ~/.ssh/
+          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/private_key 
+      - name: setup aws credentials
+        uses: aws-actions/configure-aws-credentials
         with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+      - name: terraform setup
+        uses: hashicorp/setup-terraform
       - name: terraform format
         id: fmt
         run: terraform fmt -check
@@ -30,7 +38,9 @@ jobs:
       - name: terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -input=false
+        run: |
+          ls ~/.ssh/
+          terraform plan -no-color -input=false
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
@@ -50,7 +60,7 @@ jobs:
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>\n
-            \`\`\`\n
+            \`\`\`sh\n
             ${process.env.PLAN}
             \`\`\`
             </details>
@@ -67,7 +77,7 @@ jobs:
         run: exit 1 
       - name: terraform apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: mkdir ~/.ssh/ && echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/private_key && terraform apply -auto-approve -input=false
+        run: terraform apply -auto-approve -input=false
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
