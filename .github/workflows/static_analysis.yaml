@@ -1,9 +1,9 @@
+name: static-analysis
 on:
   push:
     branches:
       - "main"
   pull_request:
-name: static-analysis
 jobs:
   golangci-lint:
     name: runner / golangci-lint
