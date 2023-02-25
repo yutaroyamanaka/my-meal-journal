@@ -38,9 +38,7 @@ jobs:
       - name: terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: |
-          ls ~/.ssh/
-          terraform plan -no-color -input=false
+        run: terraform plan -no-color -input=false
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
