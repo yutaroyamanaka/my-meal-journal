@@ -35,7 +35,7 @@ jobs:
         run: terraform plan -no-color -input=false
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
-          TF_VAR_db_password: ${{ secrets.DB_PASWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_public_key: ${{ vars.PUBLIC_KEY }}
           TF_VAR_private_key_path: ~/.ssh/private_key
         continue-on-error: true
@@ -72,6 +72,6 @@ jobs:
         run: terraform apply -auto-approve -input=false
         env:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
-          TF_VAR_db_password: ${{ secrets.DB_PASWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_public_key: ${{ vars.PUBLIC_KEY }}
           TF_VAR_private_key_path: ~/.ssh/private_key
