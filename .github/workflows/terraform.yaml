@@ -6,8 +6,10 @@ on:
   pull_request:
 jobs:
   terraform:
-    name: "Terraform"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
     permissions:
       pull-requests: write
     steps:
@@ -72,3 +74,4 @@ jobs:
           TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
           TF_VAR_db_password: ${{ secrets.DB_PASWORD }}
           TF_VAR_public_key: ${{ vars.PUBLIC_KEY }}
+          TF_VAR_private_key_path: ~/.ssh/private_key
