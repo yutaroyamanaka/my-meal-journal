@@ -17,7 +17,7 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
       - name: private key setup
-        run: echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/private_key
+        run: mkdir ~/.ssh/ && echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/private_key
       - name: terraform format
         id: fmt
         run: terraform fmt -check
