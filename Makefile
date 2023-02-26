@@ -2,7 +2,7 @@
 
 TAG := latest
 build:
-	docker build -t yutaroyamanaka/my-meal-journal:$(TAG) .
+	docker build -t salachike/my-meal-journal:$(TAG) .
 
 build-local:
 	docker compose -f ./deploy/compose.yaml build --no-cache
