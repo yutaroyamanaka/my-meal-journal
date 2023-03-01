@@ -10,10 +10,10 @@ output "cluster_endpoint" {
 
 output "db_endpoint" {
   description = "endpoint of mysql instance"
-  value = aws_db_instance.db.endpoint
+  value       = aws_db_instance.db.endpoint
 }
 
 output "ecr_repository" {
   description = "endpoint of ecr repository"
-  value = aws_ecr_repository.repository.repository_url
+  value       = aws_ecr_repository.repository.repository_url
 }

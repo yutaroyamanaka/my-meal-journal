@@ -20,12 +20,12 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
-    ami_type = "ami-0822295a729d2a28e"
-    instance_types = ["t3.small"] 
-    min_size = 1
-    max_size = 2
-    desired_size = 1
-    key_name = aws_key_pair.admin.key_name
+    ami_type               = "ami-0822295a729d2a28e"
+    instance_types         = ["t3.small"]
+    min_size               = 1
+    max_size               = 2
+    desired_size           = 1
+    key_name               = aws_key_pair.admin.key_name
     vpc_security_group_ids = [aws_security_group.eks_security_group.id]
   }
 
