@@ -8,9 +8,19 @@ output "cluster_endpoint" {
   value       = module.eks.cluster_endpoint
 }
 
+output "cluster_name" {
+  description = "eks cluster name"
+  value       = module.eks.cluster_name
+}
+
 output "db_endpoint" {
   description = "endpoint of mysql instance"
   value       = aws_db_instance.db.endpoint
+}
+
+output "db_name" {
+  description = "name of database schema"
+  value       = aws_db_instance.db.name
 }
 
 output "ecr_repository" {
