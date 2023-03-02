@@ -15,7 +15,7 @@ output "cluster_name" {
 
 output "db_endpoint" {
   description = "endpoint of mysql instance"
-  value       = aws_db_instance.db.endpoint
+  value       = split(":", aws_db_instance.db.endpoint)[0]
 }
 
 output "db_name" {
