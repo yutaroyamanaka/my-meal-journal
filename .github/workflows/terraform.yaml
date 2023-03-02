@@ -26,6 +26,8 @@ jobs:
           aws-region: ap-northeast-1
       - name: terraform setup
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
       - name: terraform format
         id: fmt
         run: terraform fmt -check
