@@ -96,7 +96,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ../
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
       - name: kubectl setup
-        # if: steps.apply.outcome == 'success'
+        if: steps.apply.outcome == 'success'
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
@@ -113,7 +113,7 @@ jobs:
           IMAGE_TAG: latest
         run: |
           kubectl apply -f ../k8s/namespace.yaml
-          cat \<<EOF >> ../k8s/kustomization.yaml
+          cat <<EOF >> ../k8s/kustomization.yaml
           images:
           - name: IMAGE
             newName: $ECR_REGISTRY/$ECR_REPOSITORY
