@@ -2,22 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-meal-journal-deployment
-  namespace: app
-  labels:
-    app: my-meal-journal
 spec:
   replicas: 2
-  selector:
-    matchLabels:
-      app: my-meal-journal
   template:
-    metadata:
-      labels:
-        app: my-meal-journal
     spec:
       containers:
       - name: app
-        image: salachike/my-meal-journal:latest
+        image: IMAGE:TAG
         args:
           - "--port=8080"
         resources:
