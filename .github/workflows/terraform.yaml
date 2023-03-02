@@ -95,3 +95,42 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ../
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: kubectl setup
+        # if: steps.apply.outcome == 'success'
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+      - name: set up kubeconfig file
+        if: steps.apply.outcome == 'success'
+        run: |
+          aws eks update-kubeconfig --name $(terraform output -raw cluster_name)
+      - name: kubectl apply
+        if: steps.apply.outcome == 'success'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: my-meal-repository
+          IMAGE_TAG: latest
+        run: |
+          kubectl apply -f ../k8s/namespace.yaml
+          cat \<<EOF >> ../k8s/kustomization.yaml
+          images:
+          - name: IMAGE
+            newName: $ECR_REGISTRY/$ECR_REPOSITORY
+            newTag: $IMAGE_TAG
+          configMapGenerator:
+          - name: db-configmap
+            literals:
+            - DB_HOST=$(terraform output -raw db_endpoint)
+            - DB_NAME=$(terraform output -raw db_name) 
+            options:
+              disableNameSuffixHash: true
+          secretGenerator:
+          - name: db-secret
+            literals:
+            - DB_USER=${{ secrets.DB_USERNAME }} 
+            - DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            options:
+              disableNameSuffixHash: true
+          EOF
+          kubectl kustomize ../k8s | kubectl apply -f -
