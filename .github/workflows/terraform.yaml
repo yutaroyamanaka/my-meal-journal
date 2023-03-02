@@ -74,6 +74,7 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1 
       - name: terraform apply
+        id: apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
         env:
@@ -81,3 +82,16 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_public_key: ${{ vars.PUBLIC_KEY }}
           TF_VAR_private_key_path: ~/.ssh/private_key
+      - name: ecr login
+        if: steps.apply.outcome == 'success'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: image push to ecr
+        if: steps.apply.outcome == 'success'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: my-meal-repository
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ../
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
