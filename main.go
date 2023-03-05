@@ -33,6 +33,7 @@ func newLogger() log.Logger {
 func run(ctx context.Context, db *sql.DB, l net.Listener, logger log.Logger) error {
 	mux := http.NewServeMux()
 	mux.Handle("/health", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		level.Info(logger).Log("msg", "health check is conducted")
 		w.Write([]byte("OK\n"))
 	}))
 
