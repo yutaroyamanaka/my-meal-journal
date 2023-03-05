@@ -1,5 +1,6 @@
 # Create a security group that allows SSH access
 resource "aws_security_group" "bastion_secruity_group" {
+  name   = "bastion-security-group"
   vpc_id = aws_vpc.vpc.id
 
   ingress {
@@ -27,7 +28,7 @@ resource "aws_instance" "bastion" {
   instance_type               = "t2.nano"
   associate_public_ip_address = true
   key_name                    = aws_key_pair.admin.key_name
-  subnet_id                   = aws_subnet.public_subnet.id
+  subnet_id                   = aws_subnet.public_subnet_1.id
   vpc_security_group_ids      = [aws_security_group.bastion_secruity_group.id]
 
   connection {

@@ -3,4 +3,3 @@ kind: Kustomization
 namespace: app
 resources:
 - base
-- namespace.yaml
