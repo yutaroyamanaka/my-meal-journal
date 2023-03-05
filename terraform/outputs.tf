@@ -20,7 +20,7 @@ output "db_endpoint" {
 
 output "db_name" {
   description = "name of database schema"
-  value       = aws_db_instance.db.name
+  value       = aws_db_instance.db.db_name
 }
 
 output "ecr_repository" {
